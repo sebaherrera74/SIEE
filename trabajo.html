@@ -6,6 +6,24 @@
 <title>Trabajos Realizados - SIEE</title>
 
 <style>
+#visor{
+display:none;
+position:fixed;
+top:0;
+left:0;
+width:100%;
+height:100%;
+background:rgba(0,0,0,0.9);
+justify-content:center;
+align-items:center;
+z-index:1000;
+}
+
+#visor img{
+max-width:90%;
+max-height:90%;
+border-radius:10px;
+}
 body{
 font-family:Arial;
 background:#f4f6f9;
@@ -144,7 +162,7 @@ margin-top:30px;
 </div>
 
 <div class="card-content">
-<span class="tag">Fuente Switching</span>
+<span class="tag">Modulo Control electronico</span>
 <h3>Reparación Modulo de Camion VW </h3>
 <p>
 Falla en etapa de salida hacia Reles. Se detectó CI MOSFET en corto y capacitores degradados.
@@ -201,7 +219,10 @@ bajo condiciones reales de trabajo.
 </div>
 
 </div>
-
+<!-- VISOR DE IMAGEN -->
+<div id="visor" onclick="cerrarImagen()">
+  <img id="imgGrande">
+</div>
 </section>
 
 <footer>
