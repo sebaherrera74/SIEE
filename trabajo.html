@@ -6,6 +6,8 @@
 <title>Trabajos Realizados - SIEE</title>
 
 <style>
+
+/* VISOR */
 #visor{
 display:none;
 position:fixed;
@@ -24,6 +26,8 @@ max-width:90%;
 max-height:90%;
 border-radius:10px;
 }
+
+/* GENERAL */
 body{
 font-family:Arial;
 background:#f4f6f9;
@@ -59,7 +63,7 @@ text-align:center;
 margin-bottom:30px;
 }
 
-/* GRID GENERAL */
+/* GRID */
 .gallery{
 display:grid;
 grid-template-columns:repeat(auto-fit,minmax(300px,1fr));
@@ -84,9 +88,10 @@ transform:translateY(-5px);
 width:100%;
 height:200px;
 object-fit:cover;
+cursor:pointer;
 }
 
-/* VARIAS IMÁGENES */
+/* MINI IMÁGENES */
 .imagenes-trabajo{
 display:grid;
 grid-template-columns:repeat(3,1fr);
@@ -99,6 +104,7 @@ width:100%;
 height:90px;
 object-fit:cover;
 border-radius:5px;
+cursor:pointer;
 }
 
 /* CONTENIDO */
@@ -126,6 +132,7 @@ text-align:center;
 padding:20px;
 margin-top:30px;
 }
+
 </style>
 
 </head>
@@ -148,41 +155,41 @@ margin-top:30px;
 
 <div class="gallery">
 
-<!-- 🔧 TRABAJO 1 -->
+<!-- TRABAJO 1 -->
 <div class="card">
 
-<img src="imagenes/camionvw2.jpeg">
+<img src="imagenes/camionvw2.jpeg" onclick="abrirImagen(this.src)">
 
 <div class="imagenes-trabajo">
-<img src="imagenes/camionvw3.jpeg">
-<img src="imagenes/camionvw4.jpeg">
-<img src="imagenes/camionvw5.jpeg">
-<img src="imagenes/camionvw6.jpeg">
-<img src="imagenes/camionvw7.jpeg">
+<img src="imagenes/camionvw3.jpeg" onclick="abrirImagen(this.src)">
+<img src="imagenes/camionvw4.jpeg" onclick="abrirImagen(this.src)">
+<img src="imagenes/camionvw5.jpeg" onclick="abrirImagen(this.src)">
+<img src="imagenes/camionvw6.jpeg" onclick="abrirImagen(this.src)">
+<img src="imagenes/camionvw7.jpeg" onclick="abrirImagen(this.src)">
 </div>
 
 <div class="card-content">
-<span class="tag">Modulo Control electronico</span>
-<h3>Reparación Modulo de Camion VW </h3>
+<span class="tag">Módulo Electrónico</span>
+<h3>Reparación Módulo Camión VW</h3>
 <p>
-Falla en etapa de salida hacia Reles. Se detectó CI MOSFET en corto y capacitores degradados.
-Se realizó reemplazo de componentes y ensayo bajo carga con funcionamiento normal.
+Falla en etapa de salida hacia relés. Se detectó MOSFET en corto y capacitores degradados.
+Reemplazo de componentes y ensayo bajo carga con funcionamiento normal.
 </p>
 </div>
 
 </div>
 
-<!-- 🔧 TRABAJO 2 -->
+<!-- TRABAJO 2 -->
 <div class="card">
 
-<img src="imagenes/camionvw2.jpeg">
+<img src="imagenes/camionvw2.jpeg" onclick="abrirImagen(this.src)">
 
 <div class="imagenes-trabajo">
-<img src="imagenes/camionvw3.jpeg">
-<img src="imagenes/camionvw4.jpeg">
-<img src="imagenes/camionvw5.jpeg">
-<img src="imagenes/camionvw6.jpeg">
-<img src="imagenes/camionvw7.jpeg">
+<img src="imagenes/camionvw3.jpeg" onclick="abrirImagen(this.src)">
+<img src="imagenes/camionvw4.jpeg" onclick="abrirImagen(this.src)">
+<img src="imagenes/camionvw5.jpeg" onclick="abrirImagen(this.src)">
+<img src="imagenes/camionvw6.jpeg" onclick="abrirImagen(this.src)">
+<img src="imagenes/camionvw7.jpeg" onclick="abrirImagen(this.src)">
 </div>
 
 <div class="card-content">
@@ -196,39 +203,50 @@ Verificación funcional en banco de pruebas.
 
 </div>
 
-<!-- 🔧 TRABAJO 3 -->
+<!-- TRABAJO 3 -->
 <div class="card">
 
-<img src="imagenes/variador1.jpg">
+<img src="imagenes/variador1.jpg" onclick="abrirImagen(this.src)">
 
 <div class="imagenes-trabajo">
-<img src="imagenes/variador2.jpg">
-<img src="imagenes/variador3.jpg">
-<img src="imagenes/variador4.jpg">
+<img src="imagenes/variador2.jpg" onclick="abrirImagen(this.src)">
+<img src="imagenes/variador3.jpg" onclick="abrirImagen(this.src)">
+<img src="imagenes/variador4.jpg" onclick="abrirImagen(this.src)">
 </div>
 
 <div class="card-content">
 <span class="tag">Variador</span>
 <h3>Diagnóstico Variador de Frecuencia</h3>
 <p>
-Falla en etapa de potencia. Reparación de driver y verificación de operación
-bajo condiciones reales de trabajo.
+Falla en etapa de potencia. Reparación de driver y verificación de operación bajo carga.
 </p>
 </div>
 
 </div>
 
 </div>
-<!-- VISOR DE IMAGEN -->
-<div id="visor" onclick="cerrarImagen()">
-  <img id="imgGrande">
-</div>
+
 </section>
 
 <footer>
 SIEE Ingeniería Industrial
 </footer>
 
+<!-- VISOR -->
+<div id="visor" onclick="cerrarImagen()">
+  <img id="imgGrande">
+</div>
+
+<script>
+function abrirImagen(src){
+  document.getElementById("visor").style.display = "flex";
+  document.getElementById("imgGrande").src = src;
+}
+
+function cerrarImagen(){
+  document.getElementById("visor").style.display = "none";
+}
+</script>
+
 </body>
 </html>
-
