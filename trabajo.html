@@ -2,8 +2,53 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Trabajos Realizados - SIEE</title>
+
 <style>
+body{
+font-family:Arial;
+background:#f4f6f9;
+margin:0;
+}
+
+header{
+background:#0f172a;
+color:white;
+padding:30px;
+text-align:center;
+}
+
+nav{
+margin-top:10px;
+}
+
+nav a{
+color:white;
+margin:0 10px;
+text-decoration:none;
+font-weight:bold;
+}
+
+section{
+max-width:1100px;
+margin:auto;
+padding:40px 20px;
+}
+
+h2{
+text-align:center;
+margin-bottom:30px;
+}
+
+/* GRID GENERAL */
+.gallery{
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(300px,1fr));
+gap:25px;
+}
+
+/* TARJETAS */
 .card{
 background:white;
 border-radius:12px;
@@ -16,14 +61,35 @@ transition:0.2s;
 transform:translateY(-5px);
 }
 
+/* IMAGEN PRINCIPAL */
 .card img{
 width:100%;
 height:200px;
 object-fit:cover;
 }
 
+/* VARIAS IMÁGENES */
+.imagenes-trabajo{
+display:grid;
+grid-template-columns:repeat(3,1fr);
+gap:5px;
+padding:5px;
+}
+
+.imagenes-trabajo img{
+width:100%;
+height:90px;
+object-fit:cover;
+border-radius:5px;
+}
+
+/* CONTENIDO */
 .card-content{
 padding:15px;
+}
+
+.card-content h3{
+margin:10px 0;
 }
 
 .tag{
@@ -35,64 +101,111 @@ font-size:0.8rem;
 margin-bottom:8px;
 }
 
-body{
-font-family:Arial;
-background:#f4f6f9;
+footer{
+background:#0f172a;
+color:white;
 text-align:center;
-padding:40px;
-}
-
-.gallery{
-display:grid;
-grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
-gap:20px;
-max-width:1000px;
-margin:auto;
-}
-
-.gallery img{
-width:100%;
-border-radius:10px;
+padding:20px;
+margin-top:30px;
 }
 </style>
+
 </head>
 
 <body>
 
+<header>
+<h1>Trabajos Realizados</h1>
+
+<nav>
+<a href="index.html">Inicio</a>
+<a href="trabajo.html">Trabajos</a>
+</nav>
+
+</header>
+
+<section>
+
+<h2>Laboratorio y Proyectos</h2>
+
 <div class="gallery">
 
+<!-- 🔧 TRABAJO 1 -->
 <div class="card">
-<img src="imagenes/camionvw2.jpeg">
+
+<img src="imagenes/fuente1.jpg">
+
+<div class="imagenes-trabajo">
+<img src="imagenes/fuente2.jpg">
+<img src="imagenes/fuente3.jpg">
+<img src="imagenes/fuente4.jpg">
+</div>
+
 <div class="card-content">
 <span class="tag">Fuente Switching</span>
-<h3>Reparación Fuente 24V</h3>
-<p>Falla en etapa primaria. Reemplazo de MOSFET y prueba bajo carga.</p>
-</div>
+<h3>Reparación Modulo de Camion VW </h3>
+<p>
+Falla en etapa de salida hacia Reles. Se detectó CI MOSFET en corto y capacitores degradados.
+Se realizó reemplazo de componentes y ensayo bajo carga con funcionamiento normal.
+</p>
 </div>
 
+</div>
+
+<!-- 🔧 TRABAJO 2 -->
 <div class="card">
+
+<img src="imagenes/camionvw2.jpeg">
+
+<div class="imagenes-trabajo">
 <img src="imagenes/camionvw3.jpeg">
+<img src="imagenes/camionvw4.jpeg">
+<img src="imagenes/camionvw5.jpeg">
+<img src="imagenes/camionvw6.jpeg">
+<img src="imagenes/camionvw7.jpeg">
+</div>
+
 <div class="card-content">
 <span class="tag">Placa Industrial</span>
-<h3>Placa de Control</h3>
-<p>Diagnóstico de componentes SMD y verificación funcional.</p>
-</div>
+<h3>Reparación Placa de Control</h3>
+<p>
+Falla intermitente en sistema de control. Diagnóstico de componentes SMD y reemplazo.
+Verificación funcional en banco de pruebas.
+</p>
 </div>
 
+</div>
+
+<!-- 🔧 TRABAJO 3 -->
 <div class="card">
-<img src="imagenes/camionvw4.jpeg">
+
+<img src="imagenes/variador1.jpg">
+
+<div class="imagenes-trabajo">
+<img src="imagenes/variador2.jpg">
+<img src="imagenes/variador3.jpg">
+<img src="imagenes/variador4.jpg">
+</div>
+
 <div class="card-content">
 <span class="tag">Variador</span>
-<h3>Variador de Frecuencia</h3>
-<p>Reparación de etapa de potencia y prueba operativa.</p>
-</div>
+<h3>Diagnóstico Variador de Frecuencia</h3>
+<p>
+Falla en etapa de potencia. Reparación de driver y verificación de operación
+bajo condiciones reales de trabajo.
+</p>
 </div>
 
 </div>
 
-<br><br>
+</div>
 
-<a href="index.html">Volver al inicio</a>
+</section>
+
+<footer>
+SIEE Ingeniería Industrial
+</footer>
 
 </body>
 </html>
+
