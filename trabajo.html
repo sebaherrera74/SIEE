@@ -4,6 +4,37 @@
 <meta charset="UTF-8">
 <title>Trabajos Realizados - SIEE</title>
 <style>
+.card{
+background:white;
+border-radius:12px;
+overflow:hidden;
+box-shadow:0 6px 20px rgba(0,0,0,0.08);
+transition:0.2s;
+}
+
+.card:hover{
+transform:translateY(-5px);
+}
+
+.card img{
+width:100%;
+height:200px;
+object-fit:cover;
+}
+
+.card-content{
+padding:15px;
+}
+
+.tag{
+display:inline-block;
+background:#e2e8f0;
+padding:4px 10px;
+border-radius:6px;
+font-size:0.8rem;
+margin-bottom:8px;
+}
+
 body{
 font-family:Arial;
 background:#f4f6f9;
@@ -28,15 +59,34 @@ border-radius:10px;
 
 <body>
 
-<h1>Trabajos Realizados</h1>
-<p>Ejemplos de reparaciones electrónicas y proyectos desarrollados.</p>
-
 <div class="gallery">
 
-<img src="imagenes/camionvw2.jpeg">
-<img src="imagenes/camionvw3.jpeg">
-<img src="imagenes/camionvw4.jpeg">
-<img src="imagenes/camionvw5.jpeg">
+<div class="card">
+<img src="imagenes/fuente24v.jpg">
+<div class="card-content">
+<span class="tag">Fuente Switching</span>
+<h3>Reparación Fuente 24V</h3>
+<p>Falla en etapa primaria. Reemplazo de MOSFET y prueba bajo carga.</p>
+</div>
+</div>
+
+<div class="card">
+<img src="imagenes/placa_control.jpg">
+<div class="card-content">
+<span class="tag">Placa Industrial</span>
+<h3>Placa de Control</h3>
+<p>Diagnóstico de componentes SMD y verificación funcional.</p>
+</div>
+</div>
+
+<div class="card">
+<img src="imagenes/variador.jpg">
+<div class="card-content">
+<span class="tag">Variador</span>
+<h3>Variador de Frecuencia</h3>
+<p>Reparación de etapa de potencia y prueba operativa.</p>
+</div>
+</div>
 
 </div>
 
