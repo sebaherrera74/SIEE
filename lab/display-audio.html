@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Control de display de audio con ESP32 | SIEE Lab</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+
+body{
+font-family:'Inter',sans-serif;
+background:#f4f6f9;
+color:#1f2937;
+line-height:1.7;
+}
+
+header{
+background:#0f172a;
+color:white;
+padding:45px 20px;
+text-align:center;
+}
+
+header h1{
+font-size:2.3rem;
+letter-spacing:1px;
+}
+
+header p{
+margin-top:10px;
+font-weight:300;
+}
+
+.container{
+max-width:900px;
+margin:auto;
+padding:50px 20px;
+}
+
+h2{
+color:#0f172a;
+margin:35px 0 15px;
+}
+
+p{
+margin-bottom:18px;
+}
+
+.card{
+background:white;
+padding:30px;
+border-radius:12px;
+box-shadow:0 4px 18px rgba(0,0,0,0.06);
+margin-bottom:30px;
+}
+
+.badge{
+display:inline-block;
+background:#e2e8f0;
+color:#111;
+padding:6px 12px;
+border-radius:6px;
+font-size:.8rem;
+margin:5px 5px 5px 0;
+}
+
+.back{
+text-align:center;
+margin-top:40px;
+}
+
+.back a{
+color:#2563eb;
+text-decoration:none;
+font-weight:600;
+}
+
+footer{
+background:#0f172a;
+color:white;
+text-align:center;
+padding:30px 20px;
+margin-top:40px;
+}
+
+code{
+background:#e2e8f0;
+padding:3px 6px;
+border-radius:4px;
+}
+</style>
+
+</head>
+
+<body>
+
+<header>
+
+<h1>Control de un display de audio con ESP32</h1>
+
+<p>SIEE Lab · Electrónica · Ingeniería inversa</p>
+
+</header>
+
+<div class="container">
+
+<div class="card">
+
+<span class="badge">ESP32</span> <span class="badge">Display</span> <span class="badge">COP472</span> <span class="badge">74HCT164</span> <span class="badge">Ingeniería inversa</span>
+
+<h2>Introducción</h2>
+
+<p>
+Durante una reparación encontré una placa perteneciente a un equipo de audio
+que utilizaba un display cuyo sistema de control no conocía.
+</p>
+
+<p>
+En lugar de limitarme a reemplazar componentes, decidí investigar cómo
+funcionaba la comunicación con el display y determinar si era posible
+controlarlo utilizando un ESP32.
+</p>
+
+</div>
+
+<div class="card">
+
+<h2>Identificación de los componentes</h2>
+
+<p>
+El primer paso fue analizar la placa e identificar los circuitos integrados
+relacionados con el display.
+</p>
+
+<p>
+Entre los componentes encontrados aparecieron un <strong>COP472</strong> y
+un <strong>74HCT164</strong>.
+</p>
+
+<p>
+A partir de la conexión entre estos circuitos y el display comencé a
+investigar la forma en que se transmitían los datos.
+</p>
+
+</div>
+
+<div class="card">
+
+<h2>Análisis de las señales</h2>
+
+<p>
+Utilizando el osciloscopio observé las señales presentes en las líneas de
+comunicación y analicé el comportamiento de los datos enviados hacia los
+circuitos de control.
+</p>
+
+<p>
+El objetivo era determinar qué cantidad de bits se enviaban, en qué orden y
+cómo cada bit estaba relacionado con los segmentos del display.
+</p>
+
+</div>
+
+<div class="card">
+
+<h2>Primeras pruebas con ESP32</h2>
+
+<p>
+Una vez identificado el funcionamiento básico de la comunicación, utilicé
+un ESP32 para generar las señales y enviar los datos al circuito.
+</p>
+
+<p>
+Una de las primeras pruebas consistió en utilizar la función
+<code>shiftOut()</code> para transmitir los bits.
+</p>
+
+</div>
+
+<div class="card">
+
+<h2>El problema del orden de los bits</h2>
+
+<p>
+Durante las primeras pruebas algunos segmentos del display no correspondían
+con los valores que estaba enviando.
+</p>
+
+<p>
+Esto llevó a investigar el orden en que se desplazaban los bits y la
+correspondencia entre cada posición del dato y los segmentos del display.
+</p>
+
+<p>
+Finalmente fue posible determinar la relación entre los bits enviados y los
+segmentos mostrados.
+</p>
+
+</div>
+
+<div class="card">
+
+<h2>Resultado</h2>
+
+<p>
+Después de varias pruebas conseguí controlar el display utilizando el ESP32.
+Esto permitió identificar individualmente los segmentos y comprender el
+protocolo utilizado por la placa original.
+</p>
+
+<p>
+Este tipo de análisis resulta especialmente útil cuando se trabaja con
+equipos antiguos cuya documentación técnica no está disponible.
+</p>
+
+</div>
+
+<div class="back">
+
+<a href="../lab.html">← Volver a SIEE Lab</a>
+
+</div>
+
+</div>
+
+<footer>
+
+<p>© 2026 SIEE Ingeniería Industrial · SIEE Lab</p>
+
+</footer>
+
+</body>
+</html>
