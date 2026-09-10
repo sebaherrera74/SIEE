@@ -112,6 +112,24 @@ padding-left:18px;
 margin:25px 0;
 }
 
+figure{
+margin:25px 0;
+text-align:center;
+}
+
+figure img{
+max-width:100%;
+height:auto;
+border-radius:10px;
+box-shadow:0 3px 12px rgba(0,0,0,0.10);
+}
+
+figcaption{
+font-size:.9rem;
+color:#64748b;
+margin-top:8px;
+}
+
 .back{
 text-align:center;
 margin-top:40px;
@@ -202,8 +220,19 @@ Así que decidí hacer algo todavía más peligroso:
 
 <p>
 El proyecto fue realizado utilizando una
-<strong>Arty Z7-10</strong>, basada en un dispositivo Zynq-7000.
+<strong>Arty Z7-10</strong>, basada en la familia Zynq-7000.
 </p>
+
+<figure>
+
+<img src="https://raw.githubusercontent.com/sebaherrera74/fpga-arty-z7/main/01_pwm/images/placa-arty-z7.jpeg"
+alt="Placa Arty Z7-10">
+
+<figcaption>
+La Arty Z7-10 utilizada durante el desarrollo del proyecto.
+</figcaption>
+
+</figure>
 
 <p>
 Una de las primeras cosas que tuve que tener en cuenta fue el reloj de la
@@ -258,7 +287,7 @@ seleccionado.
 </p>
 
 <p>
-La idea es sencilla:
+La idea básica es:
 </p>
 
 <pre>
@@ -271,20 +300,69 @@ contador ≥ límite del duty → PWM = 0
 
 <div class="card">
 
-<h2>Control del duty cycle</h2>
+<h2>¿Qué hace realmente el pwm.vhdl?</h2>
 
 <p>
-Una vez que el PWM básico funcionaba, agregué el control mediante botones.
+Una vez que el PWM básico estuvo funcionando, tuve que empezar a entender
+qué estaba haciendo realmente el código.
 </p>
 
 <p>
-El duty podía seleccionarse en pasos de 10 %:
+El archivo <code>pwm.vhdl</code> describe la lógica que implementa el
+PWM y el control mediante los botones.
+</p>
+
+<h2>El reloj y el contador</h2>
+
+<p>
+El proceso principal está sincronizado con el reloj mediante:
+</p>
+
+<pre>
+if rising_edge(clk) then
+</pre>
+
+<p>
+Esto significa que la lógica se actualiza en cada flanco ascendente del
+reloj de 125 MHz.
+</p>
+
+<p>
+Dentro de ese proceso existe un contador que avanza hasta alcanzar el
+valor correspondiente al período del PWM.
+</p>
+
+<p>
+Para las tres frecuencias utilizadas:
+</p>
+
+<pre>
+1 kHz → 125.000 ciclos
+2 kHz →  62.500 ciclos
+5 kHz →  25.000 ciclos
+</pre>
+
+<p>
+Cuando el contador alcanza el final del período vuelve a cero y comienza
+nuevamente.
+</p>
+
+<h2>El duty_select</h2>
+
+<p>
+Para controlar el duty utilicé una variable llamada
+<code>duty_select</code>.
+</p>
+
+<p>
+No es un porcentaje almacenado como número decimal. Es simplemente un
+valor entero entre 0 y 10.
 </p>
 
 <table>
 
 <tr>
-<th>Selección</th>
+<th>Valor</th>
 <th>Duty</th>
 </tr>
 
@@ -304,8 +382,8 @@ El duty podía seleccionarse en pasos de 10 %:
 </tr>
 
 <tr>
-<td>...</td>
-<td>...</td>
+<td>5</td>
+<td>50 %</td>
 </tr>
 
 <tr>
@@ -316,18 +394,142 @@ El duty podía seleccionarse en pasos de 10 %:
 </table>
 
 <p>
-Un botón aumenta el duty y otro lo disminuye.
-Cuando se llega al máximo, el siguiente paso vuelve a cero.
+Esto permite mantener el diseño relativamente sencillo y trabajar con
+pasos de 10 %.
+</p>
+
+<h2>La comparación que genera el PWM</h2>
+
+<p>
+La parte fundamental es la comparación entre el contador y el período.
+Conceptualmente, para un duty del 50 %, sería algo parecido a:
+</p>
+
+<pre>
+counter < period * 5 / 10
+</pre>
+
+<p>
+Mientras esa condición se cumple, la salida está en nivel alto.
+Cuando deja de cumplirse, pasa a nivel bajo.
 </p>
 
 <p>
-También implementé detección de flanco para que mantener presionado un
-botón no produzca un cambio continuo de valores.
+Así se obtiene la señal PWM.
+</p>
+
+</div>
+
+
+<div class="card">
+
+<h2>FPGA y microprocesadores: una forma diferente de pensar</h2>
+
+<p>
+Una de las cosas que más me llamó la atención durante este proyecto fue
+la diferencia entre programar un microcontrolador y trabajar con una FPGA.
 </p>
 
 <p>
-En esta primera versión todavía no implementé debounce.
-Eso queda como una mejora pendiente para una futura versión.
+Cuando programamos un microprocesador normalmente pensamos en una secuencia
+de instrucciones:
+</p>
+
+<pre>
+leer botón
+↓
+ejecutar código
+↓
+modificar una variable
+↓
+volver a empezar
+</pre>
+
+<p>
+En una FPGA la idea es diferente.
+</p>
+
+<p>
+Con VHDL no estamos simplemente escribiendo una lista de instrucciones
+que un procesador va ejecutando. Estamos describiendo
+<strong>hardware digital</strong>.
+</p>
+
+<p>
+En este proyecto, el contador está funcionando sincronizado con el reloj
+y la lógica de comparación determina continuamente el estado de la salida
+PWM.
+</p>
+
+<p>
+No existe una instrucción que diga literalmente
+<em>"generar PWM"</em>.
+</p>
+
+<p>
+La descripción en VHDL termina convirtiéndose, después de la síntesis,
+en lógica digital dentro de la FPGA.
+</p>
+
+<div class="note">
+<strong>Esta fue una de las primeras cosas que tuve que cambiar en mi
+forma de pensar:</strong> una FPGA no es simplemente un microprocesador
+mucho más rápido.
+</div>
+
+</div>
+
+
+<div class="card">
+
+<h2>Control mediante botones</h2>
+
+<p>
+El proyecto utiliza tres botones para controlar el funcionamiento:
+</p>
+
+<table>
+
+<tr>
+<th>Botón</th>
+<th>Función</th>
+</tr>
+
+<tr>
+<td>BTN0</td>
+<td>Aumentar duty</td>
+</tr>
+
+<tr>
+<td>BTN1</td>
+<td>Disminuir duty</td>
+</tr>
+
+<tr>
+<td>BTN2</td>
+<td>Cambiar frecuencia</td>
+</tr>
+
+<tr>
+<td>BTN3</td>
+<td>Reset</td>
+</tr>
+
+</table>
+
+<p>
+Para evitar que una pulsación mantenida cambie continuamente el valor,
+guardé el estado anterior de cada botón.
+</p>
+
+<p>
+De esta manera puedo detectar el momento en que el botón pasa de
+<strong>0 a 1</strong>, es decir, su flanco de subida.
+</p>
+
+<p>
+En esta versión todavía no implementé un debounce específico.
+Eso queda como una mejora para una futura versión.
 </p>
 
 </div>
@@ -356,11 +558,12 @@ botones.
 El reloj utilizado en el testbench fue de:
 </p>
 
-<pre>CLK_PERIOD = 8 ns</pre>
+<pre>
+CLK_PERIOD = 8 ns
+</pre>
 
 <p>
-Esto permite representar correctamente el reloj real de 125 MHz de la
-Arty Z7.
+Esto representa correctamente el reloj real de 125 MHz de la Arty Z7.
 </p>
 
 <p>
@@ -388,18 +591,31 @@ funcione en el mundo real.</strong>
 </p>
 
 <p>
-Para sacar la señal PWM de la FPGA utilicé el primer pin del conector
+Para sacar la señal PWM de la FPGA utilicé el conector
 <strong>Pmod JA</strong>.
 </p>
 
+<figure>
+
+<img src="https://raw.githubusercontent.com/sebaherrera74/fpga-arty-z7/main/01_pwm/images/PMOD-JA.jpeg"
+alt="Conector Pmod JA de la Arty Z7">
+
+<figcaption>
+Conexión utilizada para obtener la señal PWM desde el Pmod JA.
+</figcaption>
+
+</figure>
+
 <p>
-El PWM quedó asignado al pin FPGA:
+La salida PWM fue asignada al primer pin del conector:
 </p>
 
-<pre>JA1 → Y18</pre>
+<pre>
+Pmod JA1 → FPGA Y18
+</pre>
 
 <p>
-La señal fue observada finalmente con un osciloscopio.
+Desde allí fue posible observar la señal directamente con el osciloscopio.
 </p>
 
 </div>
@@ -436,11 +652,13 @@ resultó que el problema estaba en otro lugar:
 El BTN2 de la Arty Z7-10 está conectado al pin:
 </p>
 
-<pre>BTN2 → L20</pre>
+<pre>
+BTN2 → L20
+</pre>
 
 <p>
-Mientras que el pin que había utilizado anteriormente,
-<strong>M20</strong>, corresponde a otro recurso de la placa.
+El pin que había utilizado anteriormente, <strong>M20</strong>, corresponde
+al switch SW0 de la placa.
 </p>
 
 <div class="note">
@@ -489,7 +707,7 @@ seleccionar tres frecuencias diferentes:
 </table>
 
 <p>
-Las cuentas son directamente:
+Las cuentas son:
 </p>
 
 <pre>
@@ -568,10 +786,55 @@ Para la frecuencia de 1 kHz obtuve los siguientes resultados:
 </table>
 
 <p>
-La pequeña diferencia entre el valor seleccionado y el medido forma parte
-de las tolerancias y de la forma en que el osciloscopio determina el duty
-cycle.
+Las pequeñas diferencias entre el valor seleccionado y el valor medido
+pueden deberse a la resolución del contador y a la forma en que el
+osciloscopio determina el duty cycle.
 </p>
+
+<figure>
+
+<img src="https://raw.githubusercontent.com/sebaherrera74/fpga-arty-z7/main/01_pwm/images/10.jpeg"
+alt="PWM 10 por ciento">
+
+<figcaption>Medición de PWM con duty del 10 %.</figcaption>
+
+</figure>
+
+<figure>
+
+<img src="https://raw.githubusercontent.com/sebaherrera74/fpga-arty-z7/main/01_pwm/images/30.jpeg"
+alt="PWM 30 por ciento">
+
+<figcaption>Medición de PWM con duty del 30 %.</figcaption>
+
+</figure>
+
+<figure>
+
+<img src="https://raw.githubusercontent.com/sebaherrera74/fpga-arty-z7/main/01_pwm/images/50.jpeg"
+alt="PWM 50 por ciento">
+
+<figcaption>Medición de PWM con duty del 50 %.</figcaption>
+
+</figure>
+
+<figure>
+
+<img src="https://raw.githubusercontent.com/sebaherrera74/fpga-arty-z7/main/01_pwm/images/70.jpeg"
+alt="PWM 70 por ciento">
+
+<figcaption>Medición de PWM con duty del 70 %.</figcaption>
+
+</figure>
+
+<figure>
+
+<img src="https://raw.githubusercontent.com/sebaherrera74/fpga-arty-z7/main/01_pwm/images/90.jpeg"
+alt="PWM 90 por ciento">
+
+<figcaption>Medición de PWM con duty del 90 %.</figcaption>
+
+</figure>
 
 <p>
 Además de estas mediciones, comprobé físicamente el cambio de frecuencia
@@ -598,7 +861,7 @@ la implementación, los constraints y finalmente el hardware.
 
 <p>
 También aprendí que hay una diferencia importante entre programar un
-microcontrolador y diseñar lógica para una FPGA.
+microcontrolador y describir lógica para una FPGA.
 </p>
 
 <p>
