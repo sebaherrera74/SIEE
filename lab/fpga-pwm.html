@@ -1,0 +1,674 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Mi primer proyecto con FPGA: PWM con una Arty Z7-10 | SIEE Lab</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+<style>
+
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+}
+
+body{
+font-family:'Inter',sans-serif;
+background:#f4f6f9;
+color:#1f2937;
+line-height:1.7;
+}
+
+header{
+background:#0f172a;
+color:white;
+padding:45px 20px;
+text-align:center;
+}
+
+header h1{
+font-size:2.3rem;
+letter-spacing:1px;
+}
+
+header p{
+margin-top:10px;
+font-weight:300;
+}
+
+.container{
+max-width:900px;
+margin:auto;
+padding:50px 20px;
+}
+
+h2{
+color:#0f172a;
+margin:35px 0 15px;
+}
+
+p{
+margin-bottom:18px;
+}
+
+.card{
+background:white;
+padding:30px;
+border-radius:12px;
+box-shadow:0 4px 18px rgba(0,0,0,0.06);
+margin-bottom:30px;
+}
+
+.badge{
+display:inline-block;
+background:#e2e8f0;
+color:#111;
+padding:6px 12px;
+border-radius:6px;
+font-size:.8rem;
+margin:5px 5px 5px 0;
+}
+
+code{
+background:#e2e8f0;
+padding:3px 6px;
+border-radius:4px;
+}
+
+pre{
+background:#0f172a;
+color:#e5e7eb;
+padding:20px;
+border-radius:8px;
+overflow-x:auto;
+margin:20px 0;
+}
+
+table{
+width:100%;
+border-collapse:collapse;
+margin:20px 0;
+}
+
+th,td{
+padding:12px;
+border-bottom:1px solid #ddd;
+text-align:left;
+}
+
+th{
+background:#e2e8f0;
+}
+
+.note{
+border-left:4px solid #2563eb;
+padding-left:18px;
+margin:25px 0;
+}
+
+.back{
+text-align:center;
+margin-top:40px;
+}
+
+.back a{
+color:#2563eb;
+text-decoration:none;
+font-weight:600;
+}
+
+footer{
+background:#0f172a;
+color:white;
+text-align:center;
+padding:30px 20px;
+margin-top:40px;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<header>
+
+<h1>Mi primer proyecto con FPGA: PWM con una Arty Z7-10</h1>
+
+<p>SIEE Lab · FPGA · VHDL · Vivado · Experimentación</p>
+
+</header>
+
+
+<div class="container">
+
+
+<div class="card">
+
+<span class="badge">FPGA</span>
+<span class="badge">Arty Z7-10</span>
+<span class="badge">VHDL</span>
+<span class="badge">Vivado</span>
+<span class="badge">PWM</span>
+
+<h2>La idea parecía fácil</h2>
+
+<p>
+Después de bastante tiempo trabajando con electrónica, decidí que era una
+buena idea meterme con FPGA.
+</p>
+
+<p>
+Como suele ocurrir en estos casos, uno empieza pensando:
+<em>"Bueno, tampoco debe ser tan complicado. Hago un contador, genero una
+señal PWM y listo."</em>
+</p>
+
+<p>
+<strong>Spoiler: no era tan simple.</strong>
+</p>
+
+<p>
+El objetivo inicial era bastante modesto: generar una señal PWM, controlar
+el duty cycle mediante unos botones y finalmente comprobar que la señal
+apareciera en un pin físico de la placa.
+</p>
+
+<p>
+Lo que no había calculado era que para conseguirlo iba a tener que aprender
+VHDL, simulación, síntesis, implementación, constraints, bitstreams,
+Vivado y, sobre todo, la diferencia entre
+<strong>"el código funciona"</strong> y
+<strong>"la FPGA hace lo que yo creo que le dije que hiciera"</strong>.
+</p>
+
+<p>
+Así que decidí hacer algo todavía más peligroso:
+<strong>documentar el aprendizaje mientras lo estaba aprendiendo.</strong>
+</p>
+
+</div>
+
+
+<div class="card">
+
+<h2>La placa</h2>
+
+<p>
+El proyecto fue realizado utilizando una
+<strong>Arty Z7-10</strong>, basada en un dispositivo Zynq-7000.
+</p>
+
+<p>
+Una de las primeras cosas que tuve que tener en cuenta fue el reloj de la
+placa. La Arty Z7 utiliza un reloj de
+<strong>125 MHz</strong>.
+</p>
+
+<p>
+Eso significa que cada ciclo de reloj dura:
+</p>
+
+<pre>125 MHz → 8 ns por ciclo</pre>
+
+<p>
+Este dato parece bastante inocente hasta que uno empieza a hacer las
+cuentas para generar frecuencias más bajas.
+</p>
+
+<div class="note">
+<strong>Primera lección:</strong> si el reloj es de 125 MHz,
+las cuentas tienen que hacerse con 125 MHz.
+</div>
+
+</div>
+
+
+<div class="card">
+
+<h2>Primer objetivo: generar PWM</h2>
+
+<p>
+El primer PWM fue diseñado para trabajar a
+<strong>1 kHz</strong>.
+</p>
+
+<p>
+La cantidad de ciclos de reloj necesarios para completar un período es:
+</p>
+
+<pre>
+125.000.000 Hz / 1.000 Hz = 125.000 ciclos
+</pre>
+
+<p>
+Por lo tanto, el contador del PWM debía recorrer
+<strong>125.000 ciclos de reloj</strong> para completar un período.
+</p>
+
+<p>
+A partir de ese contador se compara su valor con el porcentaje de duty
+seleccionado.
+</p>
+
+<p>
+La idea es sencilla:
+</p>
+
+<pre>
+contador < límite del duty → PWM = 1
+contador ≥ límite del duty → PWM = 0
+</pre>
+
+</div>
+
+
+<div class="card">
+
+<h2>Control del duty cycle</h2>
+
+<p>
+Una vez que el PWM básico funcionaba, agregué el control mediante botones.
+</p>
+
+<p>
+El duty podía seleccionarse en pasos de 10 %:
+</p>
+
+<table>
+
+<tr>
+<th>Selección</th>
+<th>Duty</th>
+</tr>
+
+<tr>
+<td>0</td>
+<td>0 %</td>
+</tr>
+
+<tr>
+<td>1</td>
+<td>10 %</td>
+</tr>
+
+<tr>
+<td>2</td>
+<td>20 %</td>
+</tr>
+
+<tr>
+<td>...</td>
+<td>...</td>
+</tr>
+
+<tr>
+<td>10</td>
+<td>100 %</td>
+</tr>
+
+</table>
+
+<p>
+Un botón aumenta el duty y otro lo disminuye.
+Cuando se llega al máximo, el siguiente paso vuelve a cero.
+</p>
+
+<p>
+También implementé detección de flanco para que mantener presionado un
+botón no produzca un cambio continuo de valores.
+</p>
+
+<p>
+En esta primera versión todavía no implementé debounce.
+Eso queda como una mejora pendiente para una futura versión.
+</p>
+
+</div>
+
+
+<div class="card">
+
+<h2>Antes de tocar la placa: simulación</h2>
+
+<p>
+Una de las cosas que aprendí durante este proyecto es que conviene no
+correr directamente hacia la placa cada vez que uno cambia una línea de
+VHDL.
+</p>
+
+<p>
+Para eso está la simulación.
+</p>
+
+<p>
+Preparé un testbench que genera el reloj y simula las pulsaciones de los
+botones.
+</p>
+
+<p>
+El reloj utilizado en el testbench fue de:
+</p>
+
+<pre>CLK_PERIOD = 8 ns</pre>
+
+<p>
+Esto permite representar correctamente el reloj real de 125 MHz de la
+Arty Z7.
+</p>
+
+<p>
+Durante la simulación comprobé el cambio del duty y posteriormente el
+cambio entre las diferentes frecuencias.
+</p>
+
+</div>
+
+
+<div class="card">
+
+<h2>Del simulador al hardware real</h2>
+
+<p>
+Una vez que la simulación parecía correcta llegó el momento de generar
+la síntesis, implementar el diseño y generar el bitstream para programar
+la FPGA.
+</p>
+
+<p>
+Y ahí apareció una de las partes más interesantes del proyecto:
+<strong>que algo funcione en simulación no significa que automáticamente
+funcione en el mundo real.</strong>
+</p>
+
+<p>
+Para sacar la señal PWM de la FPGA utilicé el primer pin del conector
+<strong>Pmod JA</strong>.
+</p>
+
+<p>
+El PWM quedó asignado al pin FPGA:
+</p>
+
+<pre>JA1 → Y18</pre>
+
+<p>
+La señal fue observada finalmente con un osciloscopio.
+</p>
+
+</div>
+
+
+<div class="card">
+
+<h2>El problema de BTN2</h2>
+
+<p>
+En determinado momento el PWM funcionaba, la simulación funcionaba y
+prácticamente todo parecía estar bien.
+</p>
+
+<p>
+Excepto una cosa.
+</p>
+
+<p>
+<strong>El botón para cambiar la frecuencia no hacía absolutamente nada.</strong>
+</p>
+
+<p>
+Naturalmente, la primera reacción fue sospechar del VHDL.
+</p>
+
+<p>
+Después de revisar el código y darle unas cuantas vueltas al asunto,
+resultó que el problema estaba en otro lugar:
+<strong>había asignado incorrectamente el pin del botón en el archivo XDC.</strong>
+</p>
+
+<p>
+El BTN2 de la Arty Z7-10 está conectado al pin:
+</p>
+
+<pre>BTN2 → L20</pre>
+
+<p>
+Mientras que el pin que había utilizado anteriormente,
+<strong>M20</strong>, corresponde a otro recurso de la placa.
+</p>
+
+<div class="note">
+<strong>Conclusión:</strong> la FPGA estaba bien.
+El que necesitaba debugging era yo.
+</div>
+
+</div>
+
+
+<div class="card">
+
+<h2>Agregar control de frecuencia</h2>
+
+<p>
+Una vez solucionado el problema del botón, agregué la posibilidad de
+seleccionar tres frecuencias diferentes:
+</p>
+
+<table>
+
+<tr>
+<th>Selección</th>
+<th>Frecuencia</th>
+<th>Período en ciclos</th>
+</tr>
+
+<tr>
+<td>0</td>
+<td>1 kHz</td>
+<td>125.000</td>
+</tr>
+
+<tr>
+<td>1</td>
+<td>2 kHz</td>
+<td>62.500</td>
+</tr>
+
+<tr>
+<td>2</td>
+<td>5 kHz</td>
+<td>25.000</td>
+</tr>
+
+</table>
+
+<p>
+Las cuentas son directamente:
+</p>
+
+<pre>
+1 kHz → 125 MHz / 1 kHz = 125.000
+2 kHz → 125 MHz / 2 kHz = 62.500
+5 kHz → 125 MHz / 5 kHz = 25.000
+</pre>
+
+<p>
+Con cada pulsación de BTN2 se cambia la frecuencia:
+</p>
+
+<pre>
+1 kHz → 2 kHz → 5 kHz → 1 kHz
+</pre>
+
+<p>
+Finalmente comprobé las tres frecuencias directamente sobre el hardware
+y el funcionamiento fue correcto.
+</p>
+
+</div>
+
+
+<div class="card">
+
+<h2>Mediciones con el osciloscopio</h2>
+
+<p>
+Una vez funcionando el sistema sobre la Arty Z7-10, medí la señal PWM
+con el osciloscopio.
+</p>
+
+<p>
+Para la frecuencia de 1 kHz obtuve los siguientes resultados:
+</p>
+
+<table>
+
+<tr>
+<th>Duty seleccionado</th>
+<th>Duty medido</th>
+<th>Frecuencia</th>
+</tr>
+
+<tr>
+<td>10 %</td>
+<td>10,4 %</td>
+<td>1,000 kHz</td>
+</tr>
+
+<tr>
+<td>30 %</td>
+<td>30,4 %</td>
+<td>1,000 kHz</td>
+</tr>
+
+<tr>
+<td>50 %</td>
+<td>50,4 %</td>
+<td>1,000 kHz</td>
+</tr>
+
+<tr>
+<td>70 %</td>
+<td>70,4 %</td>
+<td>1,000 kHz</td>
+</tr>
+
+<tr>
+<td>90 %</td>
+<td>90,4 %</td>
+<td>1,000 kHz</td>
+</tr>
+
+</table>
+
+<p>
+La pequeña diferencia entre el valor seleccionado y el medido forma parte
+de las tolerancias y de la forma en que el osciloscopio determina el duty
+cycle.
+</p>
+
+<p>
+Además de estas mediciones, comprobé físicamente el cambio de frecuencia
+entre <strong>1 kHz, 2 kHz y 5 kHz</strong>, verificando que las tres
+opciones funcionaran correctamente.
+</p>
+
+</div>
+
+
+<div class="card">
+
+<h2>¿Qué aprendí?</h2>
+
+<p>
+Que aprender FPGA es bastante más que escribir unas líneas de VHDL.
+</p>
+
+<p>
+En este proyecto tuve que empezar a entender cómo trabajan conjuntamente
+el reloj, los contadores, la lógica secuencial, la simulación, la síntesis,
+la implementación, los constraints y finalmente el hardware.
+</p>
+
+<p>
+También aprendí que hay una diferencia importante entre programar un
+microcontrolador y diseñar lógica para una FPGA.
+</p>
+
+<p>
+Y aprendí algo todavía más importante:
+<strong>cuando algo funciona en simulación pero no funciona en la placa,
+no necesariamente hay que mirar el código durante tres horas seguidas.</strong>
+</p>
+
+<p>
+A veces el problema está en el pin.
+</p>
+
+<p>
+Y sí...
+<strong>eso también forma parte de aprender.</strong>
+</p>
+
+</div>
+
+
+<div class="card">
+
+<h2>Próximos pasos</h2>
+
+<p>
+Este proyecto es solamente el primer paso.
+</p>
+
+<p>
+Algunas mejoras que quedan pendientes son:
+</p>
+
+<ul>
+
+<li>Agregar debounce real para los botones.</li>
+
+<li>Mostrar el duty y la frecuencia mediante algún display.</li>
+
+<li>Mejorar la arquitectura del diseño.</li>
+
+<li>Explorar más recursos de la Arty Z7.</li>
+
+<li>Incorporar procesamiento utilizando la parte Zynq de la placa.</li>
+
+</ul>
+
+<p>
+La idea de este laboratorio no es solamente mostrar el resultado final,
+sino documentar también el camino para llegar hasta él.
+</p>
+
+</div>
+
+
+<div class="back">
+
+<a href="../lab.html">← Volver a SIEE Lab</a>
+
+</div>
+
+
+</div>
+
+
+<footer>
+
+<p>© 2026 SIEE Ingeniería Industrial · SIEE Lab</p>
+
+</footer>
+
+</body>
+
+</html>
