@@ -6,7 +6,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Mi primer proyecto con FPGA: PWM con una Arty Z7-10 | SIEE Lab</title>
+<title> FPGA: PWM con una Arty Z7-10 | SIEE Lab</title>
 
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
 
@@ -157,7 +157,7 @@ margin-top:40px;
 
 <header>
 
-<h1>Mi primer proyecto con FPGA: PWM con una Arty Z7-10</h1>
+<h1>FPGA: PWM con una Arty Z7-10</h1>
 
 <p>SIEE Lab · FPGA · VHDL · Vivado · Experimentación</p>
 
@@ -175,12 +175,48 @@ margin-top:40px;
 <span class="badge">Vivado</span>
 <span class="badge">PWM</span>
 
-<h2>La idea parecía fácil</h2>
+<h2><h2>Volver a la FPGA</h2>
 
 <p>
-Después de bastante tiempo trabajando con electrónica, decidí que era una
-buena idea meterme con FPGA.
+Después de un tiempo sin trabajar con la <strong>Arty Z7-10</strong>,
+decidí volver a ponerla en funcionamiento porque quiero incorporarla
+nuevamente al trabajo del laboratorio.
 </p>
+
+<p>
+La placa no era completamente nueva para mí: ya había trabajado
+anteriormente con ella, pero había pasado bastante tiempo y algunas cosas
+había que volver a recordarlas. Así que este proyecto terminó siendo,
+en parte, un <strong>reencuentro con la FPGA</strong> y, en parte, una
+oportunidad para ordenar y documentar lo que estaba haciendo.
+</p>
+
+<p>
+Para empezar decidí ir por algo relativamente sencillo: generar una señal
+PWM, controlar el duty cycle mediante botones y comprobar la señal
+directamente sobre el hardware con un osciloscopio.
+</p>
+
+<p>
+La idea parecía bastante simple.
+</p>
+
+<p>
+<strong>Spoiler: siempre parece simple al principio.</strong> 😄
+</p>
+
+<p>
+El objetivo inicial no era hacer un proyecto especialmente sofisticado,
+sino volver a familiarizarme con el flujo completo de trabajo:
+<strong>VHDL → simulación → síntesis → implementación → bitstream → hardware real</strong>.
+</p>
+
+<p>
+Y, de paso, dejar documentado el proceso para que la próxima vez que vuelva
+a mirar esta placa no tenga que empezar preguntándome nuevamente:
+<em>"¿Cómo era esto?"</em>.
+</p></h2>
+
 
 <p>
 Como suele ocurrir en estos casos, uno empieza pensando:
